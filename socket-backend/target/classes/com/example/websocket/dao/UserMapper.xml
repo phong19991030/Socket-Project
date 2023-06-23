@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.websocket.dao.UserMapper">
+	<resultMap id="userResult"
+		type="com.example.websocket.model.User">
+		<id property="userId" column="USER_ID" />
+		<result property="userName" column="USER_NAME" />
+		<!-- <result property="groupId" column="GROUP_ID" /> -->
+		<result property="groupName" column="GROUP_NAME" />
+		<result property="email" column="EMAIL" />
+		<result property="password" column="PASSWORD" />
+		<result property="fullName" column="FULL_NAME" />
+		<collection property="listGroup" 
+			ofType="com.example.websocket.model.GroupModel" autoMapping="true">
+			<id property="groupId" column="GROUP_ID" javaType="integer"/>
+			<result property="groupName" column="GROUP_NAME" />
+		</collection>
+	</resultMap>
+	<select id="getAll"
+		resultType="com.example.websocket.model.User" resultMap="userResult">
+		SELECT * from
+		tsst_user
+	</select>
+	<select id="checkUser" resultType="Integer"
+		parameterType="com.example.websocket.model.User">
+		SELECT COUNT(*) FROM tsst_user WHERE tsst_user.USER_NAME
+		= #{userName} AND tsst_user.PASSWORD =#{password}
+	</select>
+	<select id="findByUserName" parameterType="String"
+		resultMap="userResult">
+		SELECT USER.*,group_table.* from tsst_user USER
+		LEFT JOIN
+		group_user_map groupMap ON USER.USER_ID = groupMap.USER_ID
+		LEFT JOIN
+		group_table as group_table ON groupMap.GROUP_ID =
+		group_table.GROUP_ID
+		WHERE USER.USER_NAME = #{userName}
+	</select>
+	<select id="findByGroupId"
+		resultType="com.example.websocket.model.User" parameterType="String"
+		resultMap="userResult">
+		SELECT USER.* from tsst_user USER
+		LEFT JOIN group_user_map
+		groupMap ON USER.USER_ID = groupMap.USER_ID
+		LEFT JOIN group_table as
+		group_table ON groupMap.GROUP_ID =
+		group_table.GROUP_ID
+		WHERE
+		group_table.GROUP_ID = #{groupId}
+	</select>
+
+	<update id="updatePassword" parameterType="String">
+		UPDATE user SET
+		password = #{password} from WHERE email = #{email}
+	</update>
+	<update id="updateDisplayName" parameterType="String">
+		UPDATE user SET
+		display_name = #{displayName} from WHERE email = #{email}
+	</update>
+	<update id="updateStatus" parameterType="String">
+		UPDATE user SET status =
+		#{status} from WHERE email = #{email}
+	</update>
+	<insert id="save"
+		parameterType="com.example.websocket.model.User" keyProperty="id"
+		useGeneratedKeys="true">
+		INSERT into user(email, display_name, password, role,
+		status, domain)
+		VALUES(#{email}, #{displayName}, #{password}, #{role},
+		#{status},
+		#{domain})
+	</insert>
+</mapper>

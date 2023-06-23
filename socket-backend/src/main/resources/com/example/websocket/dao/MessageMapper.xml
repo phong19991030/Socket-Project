@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.websocket.dao.MessageMapper">
+	<resultMap id="message"
+		type="com.example.websocket.model.MessageModel">
+		<id property="messageId" column="MESSAGE_ID" />
+		<result property="content" column="CONTENT" />
+		<result property="groupId" column="GROUP_ID" />
+		<result property="insId" column="INS_ID" />
+		<result property="insDt" column="INS_DT" />
+		<result property="userName" column="USER_NAME" />
+	</resultMap>
+
+	<insert id="insertMessage"
+		parameterType="com.example.websocket.model.MessageModel">
+		INSERT INTO message_table
+		(CONTENT,GROUP_ID,INS_ID,INS_DT)
+		VALUES
+		(' ${content} ', ${groupId},
+		${insId},CURRENT_TIMESTAMP())
+	</insert>
+
+	<delete id="deleteMessageById">
+		DELETE FROM message_table
+		WHERE MESSAGE_ID = ${messageId}
+	</delete>
+
+	<select id="getListMessage" parameterType="string"
+		resultMap="message">
+		SELECT MESSAGE.*,USER.USER_NAME FROM message_table MESSAGE
+		LEFT JOIN tsst_user USER ON MESSAGE.INS_ID = USER.USER_ID
+		WHERE
+		GROUP_ID = ${groupId}
+	</select>
+</mapper>
